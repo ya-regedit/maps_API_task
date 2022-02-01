@@ -53,9 +53,9 @@ def get_address_coords(address):
 pygame.init()
 screen = pygame.display.set_mode(SIZE)
 coords = 37.6, 55.7
-z = 1
+scale = 1
 l = 'map'
-mainMap = Map(coords, l, z)
+mainMap = Map(coords, l, scale)
 
 running = True
 while running:
@@ -63,15 +63,30 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN and event.key == pygame.K_PAGEUP:
-            mainMap.update(scale=max(0, mainMap.scale - 1))
+            mainMap.update(scale=max(0, mainMap.scale + 1))
             print(mainMap.scale)
         if event.type == pygame.KEYDOWN and event.key == pygame.K_PAGEDOWN:
-            mainMap.update(scale=min(21, mainMap.scale + 1))
+            mainMap.update(scale=min(21, mainMap.scale - 1))
             print(mainMap.scale)
-        # if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
-        #     mainMap
-        # if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
-        #     if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-        #     if event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
+            c = mainMap.coords[0] - 20 / 2 ** mainMap.scale, mainMap.coords[1]
+            if c[0] > 180:
+                c = -180, c[1]
+            mainMap.update(coords=c)
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
+            c = mainMap.coords[0] - 20 / 2 ** mainMap.scale, mainMap.coords[1]
+            if c[0] < 180:
+                c = 180, c[1]
+            mainMap.update(coords=c)
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
+            c = mainMap.coords[0], mainMap.coords[1] + 20 / 2 ** mainMap.scale
+            if c[1] > 89:
+                c = c[0], 89
+            mainMap.update(coords=c)
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
+            c = mainMap.coords[0], mainMap.coords[1] - 20 / 2 ** mainMap.scale
+            if c[1] < -89:
+                c = c[0], -89
+            mainMap.update(coords=c)
     screen.blit(pygame.image.load(io.BytesIO(mainMap.cur_map)), (0, 0))
     pygame.display.flip()
