@@ -8,15 +8,15 @@ SIZE = (600, 400)
 
 
 class Map:
-    def __init__(self, coords, spn=(100,20), l='map'):
+    def __init__(self, coords, l='map', scale=1):
         self.l = l
-        self.spn = spn
         self.coords = coords
+        self.scale = scale
         self.cur_map = self.get_map()
 
     def get_map(self):
         lon, lat = self.coords
-        map_request = f"http://static-maps.yandex.ru/1.x/?ll={lon},{lat}&spn={self.spn[0]},{self.spn[1]}&l={self.l}"
+        map_request = f"""http://static-maps.yandex.ru/1.x/?ll={lon},{lat}&l={self.l}&z={self.scale}"""
         print(map_request)
         self.response = get(map_request)
         if not self.response:
@@ -24,13 +24,13 @@ class Map:
             sys.exit(1)
         return self.response.content
 
-    def update(self, coords=None, spn=None, l=None):
+    def update(self, coords=None, l=None, scale=None):
         flag = False
         if coords is not None:
             self.coords = coords
             flag = True
-        if spn is not None:
-            self.spn = spn
+        if scale is not None:
+            self.scale = scale
             flag = True
         if l is not None:
             self.l = l
@@ -53,14 +53,25 @@ def get_address_coords(address):
 pygame.init()
 screen = pygame.display.set_mode(SIZE)
 coords = 37.6, 55.7
-spn = 10, 2
+z = 1
 l = 'map'
-mainMap = Map(coords, spn, l)
+mainMap = Map(coords, l, z)
 
 running = True
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_PAGEUP:
+            mainMap.update(scale=max(0, mainMap.scale - 1))
+            print(mainMap.scale)
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_PAGEDOWN:
+            mainMap.update(scale=min(21, mainMap.scale + 1))
+            print(mainMap.scale)
+        # if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
+        #     mainMap
+        # if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
+        #     if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
+        #     if event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
     screen.blit(pygame.image.load(io.BytesIO(mainMap.cur_map)), (0, 0))
     pygame.display.flip()
