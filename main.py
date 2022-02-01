@@ -63,20 +63,20 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN and event.key == pygame.K_PAGEUP:
-            mainMap.update(scale=max(0, mainMap.scale + 1))
+            mainMap.update(scale=min(21, mainMap.scale + 1))
             print(mainMap.scale)
         if event.type == pygame.KEYDOWN and event.key == pygame.K_PAGEDOWN:
-            mainMap.update(scale=min(21, mainMap.scale - 1))
+            mainMap.update(scale=max(0, mainMap.scale - 1))
             print(mainMap.scale)
         if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
             c = mainMap.coords[0] - 20 / 2 ** mainMap.scale, mainMap.coords[1]
-            if c[0] > 180:
-                c = -180, c[1]
+            if c[0] < -180:
+                c = 180, c[1]
             mainMap.update(coords=c)
         if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
-            c = mainMap.coords[0] - 20 / 2 ** mainMap.scale, mainMap.coords[1]
-            if c[0] < 180:
-                c = 180, c[1]
+            c = mainMap.coords[0] + 20 / 2 ** mainMap.scale, mainMap.coords[1]
+            if c[0] > 180:
+                c = -180, c[1]
             mainMap.update(coords=c)
         if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
             c = mainMap.coords[0], mainMap.coords[1] + 20 / 2 ** mainMap.scale
