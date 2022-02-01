@@ -4,7 +4,39 @@ import sys
 import pygame
 import io
 
-response = None
+SIZE = (600, 400)
+
+
+class Map:
+    def __init__(self, coords, spn=(100,20), l='map'):
+        self.l = l
+        self.spn = spn
+        self.coords = coords
+        self.cur_map = self.get_map()
+
+    def get_map(self):
+        lon, lat = self.coords
+        map_request = f"http://static-maps.yandex.ru/1.x/?ll={lon},{lat}&spn={self.spn[0]},{self.spn[1]}&l={self.l}"
+        print(map_request)
+        self.response = get(map_request)
+        if not self.response:
+            print("Ошибка выполнения запроса")
+            sys.exit(1)
+        return self.response.content
+
+    def update(self, coords=None, spn=None, l=None):
+        flag = False
+        if coords is not None:
+            self.coords = coords
+            flag = True
+        if spn is not None:
+            self.spn = spn
+            flag = True
+        if l is not None:
+            self.l = l
+            flag = True
+        if flag:
+            self.cur_map = self.get_map()
 
 
 def get_address_coords(address):
@@ -18,27 +50,17 @@ def get_address_coords(address):
     return lon, lat
 
 
-def get_map(coords):
-    lon, lat = coords
-    global response
-    map_request = f"http://static-maps.yandex.ru/1.x/?ll={lon},{lat}&spn=100,20&l=sat,skl"
-    response = get(map_request)
-    return io.BytesIO(response.content)
-
-
-map_file = get_map(get_address_coords('Австралия'))
-
-if not response:
-    print("Ошибка выполнения запроса")
-    sys.exit(1)
-
-# Инициализируем pygame
 pygame.init()
-screen = pygame.display.set_mode((600, 450))
-# Рисуем картинку, загружаемую из только что созданного файла.
-screen.blit(pygame.image.load(map_file), (0, 0))
-# Переключаем экран и ждем закрытия окна.
-pygame.display.flip()
-while pygame.event.wait().type != pygame.QUIT:
-    pass
-pygame.quit()
+screen = pygame.display.set_mode(SIZE)
+coords = 37.6, 55.7
+spn = 10, 2
+l = 'map'
+mainMap = Map(coords, spn, l)
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    screen.blit(pygame.image.load(io.BytesIO(mainMap.cur_map)), (0, 0))
+    pygame.display.flip()
