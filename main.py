@@ -3,8 +3,11 @@ import sys
 
 import pygame
 import io
+from UI import manager, menu
 
 SIZE = (600, 400)
+clock = pygame.time.Clock()
+time_delta = clock.tick(60) / 1000.0
 
 
 class Map:
@@ -88,5 +91,8 @@ while running:
             if c[1] < -89:
                 c = c[0], -89
             mainMap.update(coords=c)
+        manager.process_events(event)
     screen.blit(pygame.image.load(io.BytesIO(mainMap.cur_map)), (0, 0))
     pygame.display.flip()
+    manager.draw_ui(screen)
+    manager.update(time_delta)
